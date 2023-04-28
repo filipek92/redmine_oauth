@@ -37,6 +37,9 @@ class RedmineOauthController < AccountController
     when 'Okta'
       redirect_to oauth_client.auth_code.authorize_url(redirect_uri: oauth_callback_url, state: oauth_csrf_token,
         scope: 'openid profile email')
+    when 'AuthServer'
+      redirect_to oauth_client.auth_code.authorize_url(redirect_uri: oauth_callback_url, state: oauth_csrf_token,
+        scope: 'none')
     else
       flash['error'] = l(:oauth_invalid_provider)
       redirect_to signin_path
@@ -55,6 +58,13 @@ class RedmineOauthController < AccountController
       user_info = JWT.decode(token.token, nil, false).first
       email = user_info['unique_name']
     when 'Okta'
+      token = oauth_client.auth_code.get_token(params['code'], redirect_uri: oauth_callback_url)
+      userinfo_response = token.get('/oauth2/' + Setting.plugin_redmine_oauth[:tenant_id] + '/v1/userinfo',
+        headers: { 'Accept' => 'application/json' })
+      user_info = JSON.parse(userinfo_response.body)
+      user_info['login'] = user_info['preferred_username']
+      email = user_info['email']
+    when 'AuthSrver'
       token = oauth_client.auth_code.get_token(params['code'], redirect_uri: oauth_callback_url)
       userinfo_response = token.get('/oauth2/' + Setting.plugin_redmine_oauth[:tenant_id] + '/v1/userinfo',
         headers: { 'Accept' => 'application/json' })
@@ -138,6 +148,13 @@ class RedmineOauthController < AccountController
           authorize_url: '/' + Setting.plugin_redmine_oauth[:tenant_id] + '/oauth2/authorize',
           token_url: '/' + Setting.plugin_redmine_oauth[:tenant_id] + '/oauth2/token')
       when 'Okta'
+        OAuth2::Client.new(
+          Setting.plugin_redmine_oauth[:client_id],
+          Setting.plugin_redmine_oauth[:client_secret],
+          site: site,
+          authorize_url: '/oauth2/' + Setting.plugin_redmine_oauth[:tenant_id] + '/v1/authorize',
+          token_url: '/oauth2/' + Setting.plugin_redmine_oauth[:tenant_id] + '/v1/token')
+      when 'AuthServer'
         OAuth2::Client.new(
           Setting.plugin_redmine_oauth[:client_id],
           Setting.plugin_redmine_oauth[:client_secret],

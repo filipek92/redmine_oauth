@@ -65,6 +65,10 @@ function oauth_settings_visibility()
             div_oauth_options.show();
             tenant_id.val("default");
             break;
+        case 'AuthServer':
+            div_oauth_options.show();
+            tenant_id.val("");
+            break;
         default:
             break;
     }

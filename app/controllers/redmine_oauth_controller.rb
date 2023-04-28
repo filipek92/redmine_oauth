@@ -64,9 +64,9 @@ class RedmineOauthController < AccountController
       user_info = JSON.parse(userinfo_response.body)
       user_info['login'] = user_info['preferred_username']
       email = user_info['email']
-    when 'AuthSrver'
+    when 'AuthServer'
       token = oauth_client.auth_code.get_token(params['code'], redirect_uri: oauth_callback_url)
-      userinfo_response = token.get('/oauth2/' + Setting.plugin_redmine_oauth[:tenant_id] + '/v1/userinfo',
+      userinfo_response = token.get('/token.php',
         headers: { 'Accept' => 'application/json' })
       user_info = JSON.parse(userinfo_response.body)
       user_info['login'] = user_info['preferred_username']

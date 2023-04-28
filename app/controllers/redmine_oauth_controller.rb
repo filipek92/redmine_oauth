@@ -64,12 +64,10 @@ class RedmineOauthController < AccountController
       user_info['login'] = user_info['preferred_username']
       email = user_info['email']
     when 'AuthServer'
-      puts 'Got params: '+params['code']
       token = oauth_client.auth_code.get_token(params['code'], redirect_uri: oauth_callback_url)
-      puts 'Got token: '+token
-      userinfo_response = token.get('/token.php',
+      userinfo_response = token.get('/introspect.php',
         headers: { 'Accept' => 'application/json' })
-      puts 'Got response: '+userinfo_response
+      puts 'Got response: '+userinfo_response.body
       user_info = JSON.parse(userinfo_response.body)
       user_info['login'] = user_info['preferred_username']
       email = user_info['email']

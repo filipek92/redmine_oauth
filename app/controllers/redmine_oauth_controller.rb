@@ -159,8 +159,8 @@ class RedmineOauthController < AccountController
           Setting.plugin_redmine_oauth[:client_id],
           Setting.plugin_redmine_oauth[:client_secret],
           site: site,
-          authorize_url: '/oauth2/' + Setting.plugin_redmine_oauth[:tenant_id] + '/v1/authorize',
-          token_url: '/oauth2/' + Setting.plugin_redmine_oauth[:tenant_id] + '/v1/token')
+          authorize_url: '/authorize.php',
+          token_url: '/token.php')
       else
         raise Exception.new(l(:oauth_invalid_provider))
       end
